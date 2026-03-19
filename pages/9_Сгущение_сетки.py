@@ -1,5 +1,23 @@
 import streamlit as st
 
+st.markdown("""
+<style>
+    /* Разделители + отступы */
+    div[data-baseweb="tab-list"] {
+        gap: 5px !important;
+    }
+    
+    div[data-baseweb="tab-list"] button[role="tab"] {
+        border-right: 1px solid #444;
+        padding: 10px 25px !important;
+    }
+    
+    div[data-baseweb="tab-list"] button[role="tab"]:last-child {
+        border-right: none;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Настройка страницы
 st.set_page_config(
     page_title="Сгущение сетки в Gmsh",
@@ -7,6 +25,7 @@ st.set_page_config(
     layout="wide"
 )
 
+st.title("Сгущение сетки в Gmsh")
 
 # Создание вкладок для каждого слайда
 tabs = st.tabs([
@@ -97,20 +116,24 @@ with tabs[1]:
     """)
     
     st.code("""
-// Пример в скрипте .geo
-Field[1] = Distance;
-Field[1].NodesList = {1, 2, 3};  // Точки-аттракторы
-Field[1].NNodesByCell = 100;
+// Определение аттракторов (например, все поверхности)
+Group(1) = {Surface Loop(1)};
 
-Field[2] = Threshold;
-Field[2].IField = 1;
-Field[2].LcMin = 0.01;  // Минимальный размер
-Field[2].LcMax = 0.5;   // Максимальный размер
-Field[2].DistMin = 0.1;
-Field[2].DistMax = 1.0;
+// Создание поля расстояния до аттракторов
+Field(1) = Distance;
+Field(1).EdgesList = Group(1);
 
+// Создание поля ограничения, которое устанавливает малый размер рядом с аттракторами
+Field(2) = Threshold;
+Field(2).IField = 1;
+Field(2).LcMin = 0.05; // Минимальный размер ячейки
+Field(2).LcMax = 1.0;  // Максимальный размер ячейки
+Field(2).DistMin = 0;  // Расстояние от аттрактора, где начинается сгущение
+Field(2).DistMax = 0.5; // Расстояние от аттрактора, где заканчивается сгущение
+
+// Использование этого поля для генерации сетки
 Background Field = 2;
-    """, language="cpp")
+    """, language="bash")
     
     st.divider()
     
@@ -122,22 +145,19 @@ Background Field = 2;
     """)
     
     st.code("""
-// Пример создания метрического поля в скрипте .geo
-Field[1] = MathEval;
-Field[1].F = "0.01 + 0.1*x^2 + 0.05*y^2";  // Аналитическая функция
+// ... определение геометрии и аттракторов ...
 
-Field[2] = Box;
-Field[2].VIn = 0.01;   // Размер внутри области
-Field[2].VOut = 0.5;   // Размер снаружи
-Field[2].XMin = 0;
-Field[2].XMax = 1;
-Field[2].YMin = 0;
-Field[2].YMax = 1;
-Field[2].ZMin = 0;
-Field[2].ZMax = 1;
+// Создание поля, которое будет использовать метрический тензор
+Field(1) = MetricTensor;
+// Здесь бы задавались компоненты тензора, например, на основе нормали к поверхности
 
-Background Field = 2;
-    """, language="cpp")
+// Указание GMSH использовать это поле
+Background Field = 1;
+
+// Важно: выбор алгоритма, поддерживающего метрики
+Mesh.Algorithm = 6; // Например, алгоритм 6 - это Frontal-Delaunay, который может работать с метриками
+// Для анизотропии может потребоваться другой алгоритм, например, BAMG
+    """, language="bash")
     
     st.warning("⚠️ Для применения поля необходимо установить его как Background Field")
     
@@ -159,10 +179,3 @@ Background Field = 2;
 
 # ==================== ПОДВАЛ ====================
 st.divider()
-st.markdown("""
-<center>
-📚 Материал подготовлен для студентов МГУ  
-🔧 Gmsh - свободное ПО для генерации сеток методом конечных элементов  
-👤 Никита Валерьевич, 1 курс магистратуры МГУ
-</center>
-""", unsafe_allow_html=True)

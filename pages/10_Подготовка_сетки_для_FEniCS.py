@@ -1,5 +1,23 @@
 import streamlit as st
 
+st.markdown("""
+<style>
+    /* Разделители + отступы */
+    div[data-baseweb="tab-list"] {
+        gap: 5px !important;
+    }
+    
+    div[data-baseweb="tab-list"] button[role="tab"] {
+        border-right: 1px solid #444;
+        padding: 10px 25px !important;
+    }
+    
+    div[data-baseweb="tab-list"] button[role="tab"]:last-child {
+        border-right: none;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Настройка страницы
 st.set_page_config(
     page_title="Перенос сетки в FEniCS",
@@ -7,6 +25,7 @@ st.set_page_config(
     layout="wide"
 )
 
+st.title("Перенос сетки из Gmsh в FEniCS")
 
 # Создание вкладок для каждого слайда
 tabs = st.tabs([
@@ -252,10 +271,4 @@ bc_dirichlet = bc.dirichletbc(value, dofs)
 
 # ==================== ПОДВАЛ ====================
 st.divider()
-st.markdown("""
-<center>
-📚 Материал подготовлен для студентов МГУ  
-🔧 Gmsh + FEniCS — мощный инструмент для FEM анализа  
-👤 Никита Валерьевич, 1 курс магистратуры МГУ
-</center>
-""", unsafe_allow_html=True)
+

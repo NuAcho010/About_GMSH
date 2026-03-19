@@ -1,14 +1,32 @@
 import streamlit as st
+
+st.markdown("""
+<style>
+    /* Разделители + отступы */
+    div[data-baseweb="tab-list"] {
+        gap: 5px !important;
+    }
+    
+    div[data-baseweb="tab-list"] button[role="tab"] {
+        border-right: 1px solid #444;
+        padding: 10px 25px !important;
+    }
+    
+    div[data-baseweb="tab-list"] button[role="tab"]:last-child {
+        border-right: none;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.title("Установка на различные ОС")
  
-menu = st.sidebar.radio('***',
-    (
+tab = st.tabs([
         "Windows", 
         "Linux",
         "MacOS"
-    )
-)
+        ])
   
-if menu == "Windows":
+with tab[0]:
     st.markdown("##### Установка в Windows")
     
     st.subheader("Способ А: Официальный установщик")
@@ -60,7 +78,7 @@ if menu == "Windows":
         ```
         """)
     
-elif menu == "Linux":
+with tab[1]:
     st.markdown("##### Установка в Linux")
     
     st.subheader("Способ А: Менеджер пакетов") 
@@ -128,7 +146,7 @@ elif menu == "Linux":
         ```
         """)
     
-elif menu == "MacOS":
+with tab[2]:
     st.markdown("##### Установка в MacOS")
     
     st.subheader("Способ А: Менеджер пакетов")
